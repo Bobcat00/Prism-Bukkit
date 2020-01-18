@@ -21,8 +21,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import javax.xml.soap.Text;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,7 +139,7 @@ public class MiscUtils {
 		}
 	}
 	public static void sendClickableTPRecord(ActionMessage a, CommandSender player){
-		if(PaperLib.isPaper() || Bukkit.getServer().getName().equalsIgnoreCase("spigot")) {
+		if(PaperLib.isPaper() || Bukkit.getServer().getVersion().toLowerCase().contains("spigot")) {
 			String[] message = Prism.messenger.playerMsg(a.getMessage());
 			//line 1 holds the index so we set that as the highlighted for command click
 			TextComponent[] toSend = new TextComponent[message.length];
