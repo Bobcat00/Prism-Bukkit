@@ -149,7 +149,7 @@ public class MiscUtils {
 				i++;
 			}
 			toSend[0].setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{
-					new TextComponent("Click to  Teleport")}));
+					new TextComponent("Click to teleport")}));
 			toSend[0].setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pr tp " + a.getIndex()));
 			if(PaperLib.isPaper()) {
 				player.sendMessage(toSend);
@@ -162,15 +162,19 @@ public class MiscUtils {
 	}
 	public static void sendPageButtons(QueryResult results, CommandSender player){
 		if(PaperLib.isPaper()) {
-			if (results.getPage() == 1)
-				player.sendMessage(MiscUtils.getNextButton());
+			if (results.getPage() == 1) {
+			    if (results.getTotal_pages() > 1)
+			        player.sendMessage(MiscUtils.getNextButton());
+			}
 			else if (results.getPage() < results.getTotal_pages())
 				player.sendMessage(MiscUtils.getPrevNextButtons());
 			else if (results.getPage() == results.getTotal_pages())
 				player.sendMessage(MiscUtils.getPreviousButton());
 		}else{
-			if (results.getPage() == 1)
-				player.spigot().sendMessage(MiscUtils.getNextButton());
+			if (results.getPage() == 1) {
+			    if (results.getTotal_pages() > 1)
+			        player.spigot().sendMessage(MiscUtils.getNextButton());
+			}
 			else if (results.getPage() < results.getTotal_pages())
 				player.spigot().sendMessage(MiscUtils.getPrevNextButtons());
 			else if (results.getPage() == results.getTotal_pages())
