@@ -331,7 +331,9 @@ public class ItemStackAction extends GenericAction {
 				meta = item.getItemMeta();
 			}
 
-			meta.setDisplayName(actionData.name);
+			if (meta != null) {
+			    meta.setDisplayName(actionData.name);
+			}
 		}
 
 		if (actionData.lore != null) {
@@ -339,7 +341,9 @@ public class ItemStackAction extends GenericAction {
 				meta = item.getItemMeta();
 			}
 
-			meta.setLore(Arrays.asList(actionData.lore));
+			if (meta != null) {
+			    meta.setLore(Arrays.asList(actionData.lore));
+			}
 		}
 
 		if (meta != null) {
