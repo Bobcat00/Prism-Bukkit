@@ -22,10 +22,7 @@ import org.bukkit.block.CommandBlock;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
-import org.bukkit.block.data.Bisected;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.*;
 import org.bukkit.block.data.Bisected.Half;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Bed.Part;
@@ -73,10 +70,15 @@ public class BlockAction extends GenericAction {
 			else if (state instanceof Skull) {
 				final SkullActionData skullActionData = new SkullActionData();
 				final Skull s = (Skull) state;
-				final Directional d = (Directional) state.getBlockData();
-				skullActionData.rotation = d.getFacing().name().toLowerCase();
+				if (state.getBlockData() instanceof Rotatable) {
+					final Rotatable r = (Rotatable) state.getBlockData();
+					skullActionData.rotation = r.getRotation().toString();
+				} else {
+					final Directional d = (Directional) state.getBlockData();
+					skullActionData.rotation = d.getFacing().name().toLowerCase();
+				}
 
-				if (state.getType() == Material.PLAYER_HEAD || state.getType() == Material.PLAYER_WALL_HEAD) {
+				if ((state.getType() == Material.PLAYER_HEAD || state.getType() == Material.PLAYER_WALL_HEAD) && (s.getOwningPlayer() != null)) {
 					skullActionData.owner = s.getOwningPlayer().getUniqueId().toString();
 				}
 
@@ -129,9 +131,6 @@ public class BlockAction extends GenericAction {
 			else if (getMaterial() == Material.COMMAND_BLOCK) {
 				actionData = new CommandActionData();
 				((CommandActionData)actionData).command = data;
-			}
-			else {
-				// No longer used, was for pre-1.5 data formats
 			}
 		}
 	}
@@ -384,17 +383,26 @@ public class BlockAction extends GenericAction {
 
 			BlockActionData blockActionData = getActionData();
 
-			/**
-			 * Skulls
+			/*
+			  Skulls
 			 */
 			if ((getMaterial() == Material.PLAYER_HEAD || getMaterial() == Material.PLAYER_WALL_HEAD)
 					&& blockActionData instanceof SkullActionData) {
 
+				block.setType(getMaterial());
+				state = block.getState();
 				final SkullActionData s = (SkullActionData) blockActionData;
 
-				// Set skull data
-				final Directional direction = (Directional) state.getBlockData();
-				direction.setFacing(s.getRotation());
+				if (state.getBlockData() instanceof Rotatable) {
+					final Rotatable r = (Rotatable) state.getBlockData();
+					r.setRotation(s.getRotation());
+					state.setBlockData(r);
+				} else {
+					final Directional d = (Directional) state.getBlockData();
+					d.setFacing(s.getRotation());
+					state.setBlockData(d);
+				}
+				state = block.getState();
 
 				if (!s.owner.isEmpty()) {
 					final Skull skull = (Skull) state;
@@ -403,8 +411,8 @@ public class BlockAction extends GenericAction {
 
 			}
 
-			/**
-			 * Spawner
+			/*
+			  Spawner
 			 */
 			if (getMaterial() == Material.SPAWNER && blockActionData instanceof SpawnerActionData) {
 
@@ -417,8 +425,8 @@ public class BlockAction extends GenericAction {
 
 			}
 
-			/**
-			 * Restoring command block
+			/*
+			  Restoring command block
 			 */
 			if (getMaterial() == Material.COMMAND_BLOCK
 					&& blockActionData instanceof CommandActionData) {
@@ -427,8 +435,8 @@ public class BlockAction extends GenericAction {
 				cmdblock.setCommand(c.command);
 			}
 
-			/**
-			 * Signs
+			/*
+			  Signs
 			 */
 			if (parameters.getProcessType() == PrismProcessType.ROLLBACK
 					&& Tag.SIGNS.isTagged(getMaterial())
